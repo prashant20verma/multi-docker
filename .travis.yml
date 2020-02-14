@@ -1,0 +1,24 @@
+sudo: required
+services:
+    - docker
+
+before_install:
+    - docker build -t prashant20verma/react-test -f ./client/Dockerfile.dev ./client
+
+scripts:
+    - docker run -e CI=true prashant20verma/react-test npm test
+
+after_success:
+    - docker build -t prashant20verma/multi-client ./client
+    - docker build -t prashant20verma/multi-server ./server
+    - docker build -t prashant20verma/multi-nginx ./nginx
+    - docker build -t prashant20verma/multi-wokrer ./wokrer
+    # Log into docker cli
+    - echo "$DOCKER_PASSWORD" | docker login -u "DOCKER_ID" --password-stdin
+    # Take those images and push them to docker hub
+    - docker push prashant20verma/multi-client
+    - docker push prashant20verma/multi-nginx
+    - docker push prashant20verma/multi-server
+    - docker push prashant20verma/multi-wokrer
+    
+
